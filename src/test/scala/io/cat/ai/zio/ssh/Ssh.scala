@@ -17,7 +17,7 @@ object Ssh extends zio.App {
   val config = new Properties
   config.put("StrictHostKeyChecking", "no")
 
-  val pipe: ZIO[Console, Throwable, String] =
+  val sshProgram: ZIO[Console, Throwable, String] =
     for {
       session          <- ssh.session.createWithProps(usr = "your_username", host = "host.to.connect", password = "your_password", props = config)
       _                <- session.establishConnection()
@@ -38,5 +38,5 @@ object Ssh extends zio.App {
     } yield result
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
-    (pipe *> ZIO.sleep(Duration(2000, TimeUnit.MILLISECONDS))) as ExitCode.success catchAllCause(cause => putStrLn(s"${cause.prettyPrint}") as ExitCode.failure)
+    (sshProgram *> ZIO.sleep(Duration(2000, TimeUnit.MILLISECONDS))) as ExitCode.success catchAllCause(cause => putStrLn(s"${cause.prettyPrint}") as ExitCode.failure)
 }

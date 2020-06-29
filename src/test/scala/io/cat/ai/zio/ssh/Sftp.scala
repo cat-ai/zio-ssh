@@ -21,7 +21,7 @@ object Sftp extends zio.App {
   val config = new Properties
   config.put(STRICT_HOSTKEY_CHECKIN_KEY, STRICT_HOSTKEY_CHECKIN_NO_VALUE)
 
-  private val transferZIO: ZIO[Console, Throwable, Unit] =
+  private val sftpProgram: ZIO[Console, Throwable, Unit] =
     for {
       session        <- ssh.session.createWithPropsAndKnownHosts(usr = "your_username", host = "host.to.connect", password = "your_password", props = config, knownHosts = ".ssh/known_hosts")
       _              <- session.establishConnection()
@@ -38,5 +38,5 @@ object Sftp extends zio.App {
     } yield ()
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
-    (transferZIO *> ZIO.sleep(Duration(3000, TimeUnit.MILLISECONDS))) as ExitCode.success catchAllCause(cause => putStrLn(s"${cause.prettyPrint}") as ExitCode.failure)
+    (sftpProgram *> ZIO.sleep(Duration(3000, TimeUnit.MILLISECONDS))) as ExitCode.success catchAllCause(cause => putStrLn(s"${cause.prettyPrint}") as ExitCode.failure)
 }
