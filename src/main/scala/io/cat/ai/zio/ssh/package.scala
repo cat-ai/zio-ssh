@@ -3,7 +3,7 @@ package io.cat.ai.zio
 import java.io.IOException
 import java.util.Properties
 
-import com.jcraft.jsch.{Channel, JSchException, Session}
+import com.jcraft.jsch.{Channel => JSchChannel, JSchException, Session => JSchSession}
 
 import io.cat.ai.zio.ssh.inout.ChannelInputReader
 import io.cat.ai.zio.ssh.jcraft.{SshChannel, SshSession}
@@ -23,32 +23,32 @@ package object ssh {
 
   object session {
 
-    def create(usr: String, host: String, port: Int = 22): IO[JSchException, Session] = SshSession.create(usr, host, port)
+    def create(usr: String, host: String, port: Int = 22): IO[JSchException, JSchSession] = SshSession.create(usr, host, port)
 
-    def createWithProps(usr: String, host: String, port: Int = 22, password: String, props: Properties): IO[JSchException, Session] =
+    def createWithProps(usr: String, host: String, port: Int = 22, password: String, props: Properties): IO[JSchException, JSchSession] =
       SshSession.createWithProperties(usr, host, port, password, props)
 
-    def createWithPropsAndKnownHosts(usr: String, host: String, port: Int = 22, password: String, props: Properties, knownHosts: String): IO[JSchException, Session] =
+    def createWithPropsAndKnownHosts(usr: String, host: String, port: Int = 22, password: String, props: Properties, knownHosts: String): IO[JSchException, JSchSession] =
       SshSession.createWithPropsAndKnowHosts(usr, host, port, password, props, knownHosts)
 
-    def createWithKnownHosts(usr: String, host: String, port: Int = 22, password: String, knownHosts: String): IO[JSchException, Session] =
+    def createWithKnownHosts(usr: String, host: String, port: Int = 22, password: String, knownHosts: String): IO[JSchException, JSchSession] =
       SshSession.createWithKnowHosts(usr, host, port, password, knownHosts)
 
-    def connectTo(session: Session, timeout: Int = 0): Task[Session] = SshSession.createConnection(session, timeout)
+    def connectTo(session: JSchSession, timeout: Int = 0): Task[JSchSession] = SshSession.createConnection(session, timeout)
 
-    implicit class JCraftSessionConnectionCreator(session: Session) {
-      def establishConnection(timeout: Int = 0): Task[Session] = connectTo(session, timeout)
+    implicit class JCraftSessionConnectionCreator(session: JSchSession) {
+      def establishConnection(timeout: Int = 0): Task[JSchSession] = connectTo(session, timeout)
     }
   }
 
   object channel {
 
-    def open(session: Session, channelType: String): Task[JCraftChannelWrapper] = SshChannel.open(session, channelType)
+    def open(session: JSchSession, channelType: String): Task[JCraftChannelWrapper] = SshChannel.open(session, channelType)
 
-    def connect(jCraftChannel: JCraftChannelWrapper, timeout: Int = 0): Task[Channel] = SshChannel.connect(jCraftChannel, timeout)
+    def connect(jCraftChannel: JCraftChannelWrapper, timeout: Int = 0): Task[JSchChannel] = SshChannel.connect(jCraftChannel, timeout)
   }
 
   object sshIO {
-    def read(channel: Channel): IO[IOException, String] = ChannelInputReader.read(channel)
+    def read(channel: JSchChannel): IO[IOException, String] = ChannelInputReader.read(channel)
   }
 }
