@@ -5,10 +5,7 @@ import java.util.concurrent.TimeUnit
 
 import com.jcraft.jsch.ChannelSftp
 
-import io.cat.ai.zio.ssh.jcraft.SshChannel.Channel
-import io.cat.ai.zio.ssh.jcraft.SshSession.Session
-
-import zio.{ExitCode, URIO, ZEnv, ZIO}
+import zio.{ExitCode, URIO, ZIO}
 import zio.console._
 import zio.duration.Duration
 
@@ -24,7 +21,7 @@ object Sftp extends zio.App {
   val config = new Properties
   config.put(STRICT_HOSTKEY_CHECKIN_KEY, STRICT_HOSTKEY_CHECKIN_NO_VALUE)
 
-  private val sftpProgram: ZIO[Console with Channel with Session, Throwable, Unit] =
+  private val transferZIO: ZIO[Console, Throwable, Unit] =
     for {
       session        <- ssh.session.createWithPropsAndKnownHosts(usr = "your_username", host = "host.to.connect", password = "your_password", props = config, knownHosts = ".ssh/known_hosts")
       _              <- session.establishConnection()
@@ -35,17 +32,11 @@ object Sftp extends zio.App {
       sftpChannel    <- ssh.channel.connect(jcraftChannel)
 
       _              =  jcraftChannel.underlying.asInstanceOf[ChannelSftp].put(localFile, s"$remoteDir/$fileName")
-
-      _              =  sftpChannel.disconnect()
-      _              =  session.disconnect()
-
       _              <- putStrLn(s"Moved from $localFile to $remoteDir$fileName")
+      _              =  sftpChannel.disconnect()
 
     } yield ()
 
-  override def run(args: List[String]): URIO[ZEnv, ExitCode] = {
-    (sftpProgram *> ZIO.sleep(Duration(3000, TimeUnit.MILLISECONDS))) as ExitCode.success catchAllCause (cause => putStrLn(s"${cause.prettyPrint}") as ExitCode.failure) as ExitCode.success
-
-    ZIO.succeed(0) as ExitCode.success
-  }
+  override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
+    (transferZIO *> ZIO.sleep(Duration(3000, TimeUnit.MILLISECONDS))) as ExitCode.success catchAllCause(cause => putStrLn(s"${cause.prettyPrint}") as ExitCode.failure)
 }
