@@ -5,7 +5,7 @@ import java.util.Properties
 
 import com.jcraft.jsch.{Channel => JSchChannel, JSchException, Session => JSchSession}
 
-import io.cat.ai.zio.ssh.inout.ChannelInputReader
+import io.cat.ai.zio.ssh.io.ChannelInputReader
 import io.cat.ai.zio.ssh.jcraft.{SshChannel, SshSession}
 import io.cat.ai.zio.ssh.jcraft.SshChannel.JCraftChannelWrapper
 

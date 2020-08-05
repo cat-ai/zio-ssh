@@ -1,4 +1,4 @@
-package io.cat.ai.zio.ssh.inout
+package io.cat.ai.zio.ssh.io
 
 import zio.ZIO
 

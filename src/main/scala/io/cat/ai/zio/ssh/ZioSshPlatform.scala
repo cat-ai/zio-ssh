@@ -1,9 +1,9 @@
 package io.cat.ai.zio.ssh
 
 import io.cat.ai.zio.ssh.jcraft.{SshChannel, SshSession}
-import io.cat.ai.zio.ssh.inout.ChannelInputReader
+import io.cat.ai.zio.ssh.io.ChannelInputReader
 
-import io.cat.ai.zio.ssh.inout.ChannelInputReader.ChannelReader
+import io.cat.ai.zio.ssh.io.ChannelInputReader.ChannelReader
 import io.cat.ai.zio.ssh.jcraft.SshSession.Session
 import io.cat.ai.zio.ssh.jcraft.SshChannel.Channel
 
